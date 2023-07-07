@@ -1,31 +1,30 @@
-#define _CRT_SECURE_NO_WARNINGS 
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define MAX_CLIENTS 100
+#define MAX_FLEURS 100
+
+typedef struct {
+    int id;
+    char nom[50];
+    char couleur[20];
+    float prix;
+    int disponibilite;
+} Fleur;
 
 typedef struct {
     char nom[50];
     char adresse[100];
     char telephone[15];
-    char ville[50];
-    char codePostal[20];
-    char pays[50];
 } Client;
 
 int nbClients = 0;
 Client listeClients[MAX_CLIENTS];
 
-int nombreClients = 0;
-int choixMenu = 0;
-int numeroClient = 0;
-char nouveauNom[50];
-char nouvelleAdresse[100];
-char nouveauTelephone[15];
-char nouvelleVille[50];
-char nouveauCodePostal[20];
-char nouveauPays[50];
+int nbFleurs = 0;
+Fleur listeFleurs[MAX_FLEURS];
 
 void ajouterClient() {
     if (nbClients >= MAX_CLIENTS) {
@@ -42,15 +41,6 @@ void ajouterClient() {
     printf("Numéro de téléphone du client : ");
     scanf("%s", listeClients[nbClients].telephone);
 
-    printf("Ville du client : ");
-    scanf("%s", listeClients[nbClients].ville);
-
-    printf("Code postal du client : ");
-    scanf("%s", listeClients[nbClients].codePostal);
-
-    printf("Pays du client : ");
-    scanf("%s", listeClients[nbClients].pays);
-
     nbClients++;
 
     printf("Le client a été ajouté avec succès.\n");
@@ -63,15 +53,13 @@ void afficherClients() {
         printf("Client %d :\n", i + 1);
         printf("Nom : %s\n", listeClients[i].nom);
         printf("Adresse : %s\n", listeClients[i].adresse);
-        printf("Téléphone : %s\n", listeClients[i].telephone);
-        printf("Ville : %s\n", listeClients[i].ville);
-        printf("Code postal : %s\n", listeClients[i].codePostal);
-        printf("Pays : %s\n", listeClients[i].pays);
-        printf("\n");
+        printf("Téléphone : %s\n\n", listeClients[i].telephone);
     }
 }
 
 void modifierClient() {
+    int numeroClient;
+
     printf("Entrez le numéro du client à modifier : ");
     scanf("%d", &numeroClient);
     numeroClient--;
@@ -81,65 +69,23 @@ void modifierClient() {
         return;
     }
 
-    int choixModification;
+    char nouveauTelephone[15];
+    char nouvelleAdresse[100];
 
-    printf("Qu'est-ce que vous voulez modifier pour ce client ?\n");
-    printf("1. Numéro de téléphone\n");
-    printf("2. Adresse\n");
-    printf("3. Code postal\n");
-    printf("4. Ville\n");
-    printf("5. Modifier tous les éléments\n");
-    printf("Votre choix : ");
-    scanf("%d", &choixModification);
+    printf("Nouveau numéro de téléphone du client : ");
+    scanf("%s", nouveauTelephone);
+    strcpy(listeClients[numeroClient].telephone, nouveauTelephone);
 
-    switch (choixModification) {
-    case 1:
-        printf("Nouveau numéro de téléphone du client : ");
-        scanf("%s", nouveauTelephone);
-        strcpy(listeClients[numeroClient].telephone, nouveauTelephone);
-        break;
-    case 2:
-        printf("Nouvelle adresse du client : ");
-        scanf("%s", nouvelleAdresse);
-        strcpy(listeClients[numeroClient].adresse, nouvelleAdresse);
-        break;
-    case 3:
-        printf("Nouveau code postal du client : ");
-        scanf("%s", nouveauCodePostal);
-        strcpy(listeClients[numeroClient].codePostal, nouveauCodePostal);
-        break;
-    case 4:
-        printf("Nouvelle ville du client : ");
-        scanf("%s", nouvelleVille);
-        strcpy(listeClients[numeroClient].ville, nouvelleVille);
-        break;
-    case 5:
-        printf("Nouveau numéro de téléphone du client : ");
-        scanf("%s", nouveauTelephone);
-        strcpy(listeClients[numeroClient].telephone, nouveauTelephone);
-
-        printf("Nouvelle adresse du client : ");
-        scanf("%s", nouvelleAdresse);
-        strcpy(listeClients[numeroClient].adresse, nouvelleAdresse);
-
-        printf("Nouveau code postal du client : ");
-        scanf("%s", nouveauCodePostal);
-        strcpy(listeClients[numeroClient].codePostal, nouveauCodePostal);
-
-        printf("Nouvelle ville du client : ");
-        scanf("%s", nouvelleVille);
-        strcpy(listeClients[numeroClient].ville, nouvelleVille);
-        break;
-    default:
-        printf("Choix invalide.\n");
-        return;
-    }
+    printf("Nouvelle adresse du client : ");
+    scanf("%s", nouvelleAdresse);
+    strcpy(listeClients[numeroClient].adresse, nouvelleAdresse);
 
     printf("Le client a été modifié avec succès.\n");
 }
 
-
 void supprimerClient() {
+    int numeroClient;
+
     printf("Entrez le numéro du client à supprimer : ");
     scanf("%d", &numeroClient);
     numeroClient--;
@@ -150,12 +96,7 @@ void supprimerClient() {
     }
 
     for (int i = numeroClient; i < nbClients - 1; i++) {
-        strcpy(listeClients[i].nom, listeClients[i + 1].nom);
-        strcpy(listeClients[i].adresse, listeClients[i + 1].adresse);
-        strcpy(listeClients[i].telephone, listeClients[i + 1].telephone);
-        strcpy(listeClients[i].ville, listeClients[i + 1].ville);
-        strcpy(listeClients[i].codePostal, listeClients[i + 1].codePostal);
-        strcpy(listeClients[i].pays, listeClients[i + 1].pays);
+        listeClients[i] = listeClients[i + 1];
     }
 
     nbClients--;
@@ -163,20 +104,109 @@ void supprimerClient() {
     printf("Le client a été supprimé avec succès.\n");
 }
 
+void ajouterFleur() {
+    if (nbFleurs >= MAX_FLEURS) {
+        printf("La liste des fleurs est pleine. Impossible d'ajouter une nouvelle fleur.\n");
+        return;
+    }
+
+    printf("ID de la fleur : ");
+    scanf("%d", &listeFleurs[nbFleurs].id);
+
+    printf("Nom de la fleur : ");
+    scanf("%s", listeFleurs[nbFleurs].nom);
+
+    printf("Couleur de la fleur : ");
+    scanf("%s", listeFleurs[nbFleurs].couleur);
+
+    printf("Prix de la fleur : ");
+    scanf("%f", &listeFleurs[nbFleurs].prix);
+
+    printf("Disponibilité de la fleur en magasin (0 - Indisponible, 1 - Disponible) : ");
+    scanf("%d", &listeFleurs[nbFleurs].disponibilite);
+
+    nbFleurs++;
+
+    printf("La fleur a été ajoutée avec succès.\n");
+}
+
+void afficherFleurs() {
+    printf("Liste des fleurs :\n");
+
+    for (int i = 0; i < nbFleurs; i++) {
+        printf("Fleur %d :\n", i + 1);
+        printf("ID : %d\n", listeFleurs[i].id);
+        printf("Nom : %s\n", listeFleurs[i].nom);
+        printf("Couleur : %s\n", listeFleurs[i].couleur);
+        printf("Prix : %.2f\n", listeFleurs[i].prix);
+        printf("Disponibilité : %s\n\n", listeFleurs[i].disponibilite ? "Disponible" : "Indisponible");
+    }
+}
+
+void modifierFleur() {
+    int numeroFleur;
+
+    printf("Entrez le numéro de la fleur à modifier : ");
+    scanf("%d", &numeroFleur);
+    numeroFleur--;
+
+    if (numeroFleur < 0 || numeroFleur >= nbFleurs) {
+        printf("Numéro de fleur invalide.\n");
+        return;
+    }
+
+    int choix;
+    printf("Que voulez-vous modifier ?\n");
+    printf("1. Nom\n");
+    printf("2. Couleur\n");
+    printf("3. Prix\n");
+    printf("4. Disponibilité\n");
+    printf("Votre choix : ");
+    scanf("%d", &choix);
+
+    switch (choix) {
+    case 1:
+        printf("Nouveau nom de la fleur : ");
+        scanf("%s", listeFleurs[numeroFleur].nom);
+        break;
+    case 2:
+        printf("Nouvelle couleur de la fleur : ");
+        scanf("%s", listeFleurs[numeroFleur].couleur);
+        break;
+    case 3:
+        printf("Nouveau prix de la fleur : ");
+        scanf("%f", &listeFleurs[numeroFleur].prix);
+        break;
+    case 4:
+        printf("Nouvelle disponibilité de la fleur (0 - Indisponible, 1 - Disponible) : ");
+        scanf("%d", &listeFleurs[numeroFleur].disponibilite);
+        break;
+    default:
+        printf("Choix invalide.\n");
+        break;
+    }
+
+    printf("La fleur a été modifiée avec succès.\n");
+}
+
 int main() {
+    int choix;
 
     do {
-        printf("Gestionnaire de clients - Menu :\n");
+        printf("Gestionnaire de clients et de fleurs - Menu :\n");
         printf("1. Ajouter un client\n");
         printf("2. Afficher tous les clients\n");
         printf("3. Modifier un client\n");
         printf("4. Supprimer un client\n");
-        printf("5. Quitter\n");
+        printf("5. Ajouter une fleur\n");
+        printf("6. Afficher toutes les fleurs\n");
+        printf("7. Modifier une fleur\n");
+        printf("8. Quitter\n");
 
         printf("Votre choix : ");
-        scanf("%d", &choixMenu);
+        scanf("%d", &choix);
 
-        switch (choixMenu) {
+        switch (choix) {
         case 1:
             ajouterClient();
             break;
@@ -190,14 +220,24 @@ int main() {
             supprimerClient();
             break;
         case 5:
-            printf("Merci d'avoir utilisé le gestionnaire de clients.\n");
+            ajouterFleur();
+            break;
+        case 6:
+            afficherFleurs();
+            break;
+        case 7:
+            modifierFleur();
+            break;
+        case 8:
+            printf("Merci d'avoir utilisé le gestionnaire de clients et de fleurs.\n");
             break;
         default:
             printf("Choix invalide.\n");
+            break;
         }
 
         printf("\n");
-    } while (choixMenu != 5);
+    } while (choix != 8);
 
     return 0;
 }
